@@ -1,8 +1,11 @@
 package torrent
 
 import (
-	"io"
+	"bytes"
+	"crypto/sha1"
+	"fmt"
 	"net/url"
+	"os"
 	"strconv"
 
 	"github.com/jackpal/bencode-go"
@@ -33,16 +36,59 @@ type TorrentFile struct {
 	Name        string
 }
 
-func Open(r io.Reader) (*bencodeTorrent, error) {
-	b := bencodeTorrent{}
-	err := bencode.Unmarshal(r, &b)
+func (b *bencodeTorrent) ToTorrentFile() (TorrentFile, error) {
+	ber, err := b.Info.hash()
 	if err != nil {
-		return nil, err
+		return TorrentFile{}, nil
 	}
-	return &b, nil
+	hashes, err := b.Info.splitHash()
+	if err != nil {
+		return TorrentFile{}, nil
+	}
+	t := TorrentFile{
+		Announce:    b.Announce,
+		InfoHash:    ber,
+		PiecesHash:  hashes,
+		PieceLength: b.Info.PieceLength,
+		Comment:     b.Comment,
+		Creation:    b.Creation,
+		Length:      b.Info.Length,
+		Name:        b.Info.Name,
+	}
+	return t, nil
 }
-func (b bencodeInfo) ToTorrentFile() (TorrentFile, error) {
-	return TorrentFile{}, nil
+func Open(path string) (TorrentFile, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return TorrentFile{}, err
+	}
+	defer f.Close()
+	b := bencodeTorrent{}
+	err = bencode.Unmarshal(f, &b)
+	if err != nil {
+		return TorrentFile{}, err
+	}
+	return b.ToTorrentFile()
+}
+func (b *bencodeInfo) hash() ([20]byte, error) {
+	var buf bytes.Buffer
+	err := bencode.Marshal(&buf, *b)
+	if err != nil {
+		return [20]byte{}, err
+	}
+	h := sha1.Sum(buf.Bytes())
+	return h, nil
+}
+func (b *bencodeInfo) splitHash() ([][20]byte, error) {
+	buf := []byte(b.Pieces)
+	if len(buf)%20 != 0 {
+		return nil, fmt.Errorf("Malformed pieces of length %d", len(buf))
+	}
+	hash := make([][20]byte, len(buf)/20)
+	for i := 0; i < len(buf)/20; i++ {
+		copy(hash[i][:], buf[i*20:(i+1)*20])
+	}
+	return hash, nil
 }
 
 func (t TorrentFile) buildTrackerURL(peerID [20]byte, port uint16) (string, error) {
