@@ -3,6 +3,7 @@ module client
 go 1.18
 
 require (
+	client v1.0.0
 	crawshaw.io/sqlite v0.3.3-0.20210127221821-98b1f83c5508 // indirect
 	github.com/RoaringBitmap/roaring v0.9.4 // indirect
 	github.com/ajwerner/btree v0.0.0-20211201061316-91c8b66ad617 // indirect
@@ -61,4 +62,10 @@ require (
 	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
+)
+
+replace (
+
+	client v1.0.0 => ./
+
 )
