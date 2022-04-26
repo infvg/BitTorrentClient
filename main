@@ -1,5 +1,28 @@
 package main
 
+import (
+	"fmt"
+	"github.com/jackpal/bencode-go"
+	"net"
+	"net/url"
+	"os"
+)
+
 func main() {
+
+	originalPath := "D:\\Export\\test.txt"
+	newPath := "D:\\Export\\test1.txt"
+
+	//err := os.Rename(originalPath, newPath)
+
+	//u, err := url.Parse(s)
+	//fmt.Println(Open("D:\\Projects\\BitTorrentClient\\[Yameii] Attack on Titan The Final Season - 26 [English Dub] [WEB-DL 1080p] [229C9651].mkv.torrent"))
+	fmt.Println("Hello")
+
+	mi, err := metainfo.LoadFromFile("[Yameii] Attack on Titan The Final Season - 26 [English Dub] [WEB-DL 1080p] [229C9651].mkv.torrent")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(mi.HashInfoBytes().String())
 
 }
