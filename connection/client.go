@@ -1,5 +1,6 @@
 package connection
 
+/*
 import (
 	"client/bitfield"
 	"client/p2p"
@@ -14,3 +15,4 @@ type Client struct {
 	infoHash [20]byte
 	peerID   [20]byte
 }
+*/
