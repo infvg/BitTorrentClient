@@ -120,13 +120,6 @@ func (torrentFileInfo TorrentFile) BuildTrackerURL(peerID [20]byte, port uint16)
 //From peers.go File
 func (torrentFileInfo *TorrentFile) RequestPeers(peerID [20]byte, port uint16) ([]Peer, error) {
 	url, err := torrentFileInfo.BuildTrackerURL(peerID, port)
-
-	fmt.Println("line124")
-	fmt.Println(url)
-	fmt.Println()
-	fmt.Println()
-	fmt.Println()
-
 	if err != nil {
 		return nil, err
 	}
@@ -134,16 +127,13 @@ func (torrentFileInfo *TorrentFile) RequestPeers(peerID [20]byte, port uint16) (
 	c := &http.Client{Timeout: 15 * time.Second}
 	resp, err := c.Get(url)
 	if err != nil {
-		fmt.Println("NEW werror")
-
 		return nil, err
 	}
-
 	defer resp.Body.Close()
-	fmt.Println("old werror")
 
 	trackerResp := bencodeTrackerResp{}
 	err = bencode.Unmarshal(resp.Body, &trackerResp)
+	fmt.Print(resp.Body)
 	if err != nil {
 		return nil, err
 	}
