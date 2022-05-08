@@ -27,14 +27,15 @@ func Unmarshal(peersBin []byte) ([]Peer, error) {
 		peers[i].IP = net.IP(peersBin[offset : offset+4])
 		peers[i].Port = binary.BigEndian.Uint16([]byte(peersBin[offset+4 : offset+6]))
 	}
+	fmt.Print("Attac")
 
-	//fmt.Print(peers)
+	fmt.Print(peers)
 
 	return peers, nil
 }
 
 func (p Peer) String() string {
-	fmt.Print("line789787987")
+	fmt.Print("INSIDE STRING ")
 
 	fmt.Print(p.IP.String())
 	fmt.Print(strconv.Itoa(int(p.Port)))

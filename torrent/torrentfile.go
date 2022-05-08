@@ -26,14 +26,23 @@ type bencodeInfo struct {
 }
 
 type bencodeTorrent struct {
-	Announce string      `bencode:"announce"`
-	Creation int         `bencode:"creation date"`
-	Comment  string      `bencode:"comment"`
-	Info     bencodeInfo `bencode:"info"`
+	Info         bencodeInfo `bencode:"info"`
+	Announce     string      `bencode:"announce"`
+	AnnounceList []string    `bencode:"announce-list"` // should return a list of all trackers
+	Creation     int         `bencode:"creation date"`
+
+	CreatedBy string `bencode:"created by"`
+	encoding  string `bencode:"encoding"`
+
+	Comment string `bencode:"comment"`
 }
 
 type TorrentFile struct { //Torrent file format
-	Announce    string
+	Announce     string
+	AnnounceList []string
+	CreatedBy    string
+	encoding     string
+
 	InfoHash    [20]byte
 	PiecesHash  [][20]byte
 	PieceLength int
@@ -44,16 +53,25 @@ type TorrentFile struct { //Torrent file format
 } //The number of pieces is total length / piece size
 
 func (b *bencodeTorrent) ToTorrentFile() TorrentFile {
+	fmt.Println(b.Announce)
+	fmt.Println(b.AnnounceList)
+
 	ber, err := b.Info.hash()
 	if err != nil {
 		return TorrentFile{}
 	}
+
 	hashes, err := b.Info.splitHash()
+
 	if err != nil {
 		return TorrentFile{}
 	}
 	torrentFileInfo := TorrentFile{
-		Announce:    b.Announce,
+		Announce:     b.Announce,
+		AnnounceList: b.AnnounceList,
+		CreatedBy:    b.CreatedBy,
+		encoding:     b.encoding,
+
 		InfoHash:    ber,
 		PiecesHash:  hashes,
 		PieceLength: b.Info.PieceLength,
@@ -62,9 +80,9 @@ func (b *bencodeTorrent) ToTorrentFile() TorrentFile {
 		Length:      b.Info.Length,
 		Name:        b.Info.Name,
 	}
-	//fmt.Print("LINE58")
+	fmt.Println("LINE58")
 
-	//fmt.Print(torrentFileInfo.Announce)
+	fmt.Println(torrentFileInfo.InfoHash)
 
 	return torrentFileInfo
 }
@@ -92,12 +110,14 @@ func Open(path string) TorrentFile {
 	}
 
 	//fmt.Print(decodedTorrent.ToTorrentFile())
-	//	fmt.Print(decodedTorrent.Announce)
+	//fmt.Print(decodedTorrent.Announce)
 
 	return decodedTorrent.ToTorrentFile()
 }
 
 func (torrentFileInfo TorrentFile) BuildTrackerURL(peerID [20]byte, port uint16) (string, error) {
+
+	//fmt.Println(torrentFileInfo.InfoHash[:])
 
 	torrentURL, err := url.Parse(torrentFileInfo.Announce)
 	if err != nil {
@@ -119,16 +139,21 @@ func (torrentFileInfo TorrentFile) BuildTrackerURL(peerID [20]byte, port uint16)
 
 //From peers.go File
 func (torrentFileInfo *TorrentFile) RequestPeers(peerID [20]byte, port uint16) ([]Peer, error) {
+
 	url, err := torrentFileInfo.BuildTrackerURL(peerID, port)
 	if err != nil {
 		return nil, err
 	}
 
 	c := &http.Client{Timeout: 15 * time.Second}
+
 	resp, err := c.Get(url)
+
 	if err != nil {
+
 		return nil, err
 	}
+
 	defer resp.Body.Close()
 
 	trackerResp := bencodeTrackerResp{}
@@ -137,6 +162,7 @@ func (torrentFileInfo *TorrentFile) RequestPeers(peerID [20]byte, port uint16) (
 	if err != nil {
 		return nil, err
 	}
+	fmt.Print("Attac")
 
 	return Unmarshal([]byte(trackerResp.Peers))
 }
@@ -148,6 +174,7 @@ func (torrentFileInfo *TorrentFile) RequestPeers(peerID [20]byte, port uint16) (
 
 
 
+// make it loop through all the trackers
 
 
 
@@ -158,8 +185,7 @@ func (torrentFileInfo *TorrentFile) RequestPeers(peerID [20]byte, port uint16) (
 
 
 
-
- */
+*/
 
 func (b *bencodeInfo) hash() ([20]byte, error) {
 	var buf bytes.Buffer

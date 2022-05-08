@@ -11,11 +11,15 @@ func main() {
 
 	//fmt.Print(os.Stat("[YURI] Kimi no Suizou o Tabetai [BD1080p HEVC FLAC][Dual Audio]  v4.torrent"))
 
-	info2 := torrent.Open("[YURI] Kimi no Suizou o Tabetai [BD1080p HEVC FLAC][Dual Audio]  v4.torrent")
+	//info2 := torrent.Open("[Yameii] Attack on Titan The Final Season - 28 [English Dub] [WEB-DL 1080p] [D3857496].mkv.torrent")
+	info2 := torrent.Open("CC_1914_08_31_TheGoodforNothing_archive.torrent")
 
-	fmt.Print("Line  16")
+	//fmt.Println(info2.InfoHash)
 
+	//fmt.Print(" Line ")
 	fmt.Print(info2.RequestPeers(peerID, port))
+
+	//fmt.Print(info2.RequestPeers(peerID, port))
 
 	//torrent.TorrentFile.Announce
 }
