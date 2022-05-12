@@ -96,8 +96,10 @@ func ToTorrentFile(path string) (TorrentFile, error) {
 	}
 
 	var trackerURLs []string
-	for _, list := range benTorrend.AnnounceList {
-		trackerURLs = append(trackerURLs, list...)
+	fmt.Println(benTorrend.AnnounceList)
+
+	for _, trackerList := range benTorrend.AnnounceList {
+		trackerURLs = append(trackerURLs, trackerList...)
 	}
 	// BEP0012, only use `announce` if `announce-list` is not present
 	if len(trackerURLs) == 0 {
