@@ -19,10 +19,12 @@ type bencodeTrackerResp struct {
 	Peers    string `bencode:"peers"`
 }
 type bencodeInfo struct {
-	Pieces      string `bencode:"pieces"`
-	PieceLength int    `bencode:"piece length"`
-	Length      int    `bencode:"length"`
-	Name        string `bencode:"name"`
+	Pieces        string   `bencode:"pieces"`
+	PieceLength   int      `bencode:"piece length"`
+	Length        int      `bencode:"length"`
+	Name          string   `bencode:"name"`
+	AnnounceList2 []string `bencode:"announce-list"` // should return a list of all trackers
+
 }
 
 type bencodeTorrent struct {
@@ -39,7 +41,7 @@ type bencodeTorrent struct {
 
 type TorrentFile struct { //Torrent file format
 	Announce     string
-	AnnounceList []string
+	AnnounceList [][]string
 	CreatedBy    string
 	encoding     string
 
@@ -68,7 +70,7 @@ func (b *bencodeTorrent) ToTorrentFile() TorrentFile {
 	}
 	torrentFileInfo := TorrentFile{
 		Announce:     b.Announce,
-		AnnounceList: b.AnnounceList,
+		AnnounceList: b.ToTorrentFile().AnnounceList,
 		CreatedBy:    b.CreatedBy,
 		encoding:     b.encoding,
 
@@ -82,10 +84,32 @@ func (b *bencodeTorrent) ToTorrentFile() TorrentFile {
 	}
 	fmt.Println("LINE58")
 
-	fmt.Println(torrentFileInfo.InfoHash)
+	fmt.Println(torrentFileInfo.Announce)
 
 	return torrentFileInfo
 }
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ */
 
 func Open(path string) TorrentFile {
 	filePath, err := os.Open(path)
@@ -139,6 +163,9 @@ func (torrentFileInfo TorrentFile) BuildTrackerURL(peerID [20]byte, port uint16)
 
 //From peers.go File
 func (torrentFileInfo *TorrentFile) RequestPeers(peerID [20]byte, port uint16) ([]Peer, error) {
+
+	fmt.Println(torrentFileInfo.Announce)
+	fmt.Println(torrentFileInfo.Announce)
 
 	url, err := torrentFileInfo.BuildTrackerURL(peerID, port)
 	if err != nil {
