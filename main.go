@@ -14,12 +14,14 @@ TO DO:
 
 func main() {
 
-	torrent, err := torrent.ToTorrentFile("[Yameii] Attack on Titan The Final Season - 28 [English Dub] [WEB-DL 1080p] [D3857496].mkv.torrent")
+	torrentFile, err := torrent.ToTorrentFile("[Yameii] Attack on Titan The Final Season - 28 [English Dub] [WEB-DL 1080p] [D3857496].mkv.torrent")
 
-	fmt.Println(torrent.Trackers)
+	fmt.Println(torrentFile.Trackers)
 
 	if err != nil {
 		return
 	}
+
+	//torrent.TrackerURL(torrentFile.Trackers[1])
 
 }
