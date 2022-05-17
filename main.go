@@ -26,6 +26,10 @@ func main() {
 		return
 	}
 
-	fmt.Print(torrent.TrackerURL(torrentFile.Trackers[2], torrentFile.InfoHash, peerID, port))
+	for count := 1; count < len(torrentFile.Trackers); count++ {
+		fmt.Println("Tracker number: ", count)
+		fmt.Print(torrent.TrackerURL(torrentFile.Trackers[count], torrentFile.InfoHash, peerID, port))
+
+	}
 
 }
