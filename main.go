@@ -2,6 +2,7 @@ package main
 
 import (
 	"client/torrent"
+	"crypto/rand"
 	"fmt"
 )
 
@@ -15,13 +16,16 @@ TO DO:
 func main() {
 
 	torrentFile, err := torrent.ToTorrentFile("[Yameii] Attack on Titan The Final Season - 28 [English Dub] [WEB-DL 1080p] [D3857496].mkv.torrent")
-
+	var peerID [20]byte
+	rand.Read(peerID[:])
+	// port doesn't matter for leeching
+	port := 6881
 	fmt.Println(torrentFile.Trackers)
 
 	if err != nil {
 		return
 	}
 
-	//torrent.TrackerURL(torrentFile.Trackers[1])
+	fmt.Print(torrent.TrackerURL(torrentFile.Trackers[2], torrentFile.InfoHash, peerID, port))
 
 }
