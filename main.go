@@ -8,8 +8,9 @@ import (
 
 /*
 TO DO:
--Make the tracker url and get all peers
--Connect to peers by handshake first and check if choke/unchoke
+-Configure the messages
+-Retrieving pieces
+
 -Concurrency so it downloads from all trackers/Peers at the same time and with the Interval value given rechecks at those intervals
 */
 
