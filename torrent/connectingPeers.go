@@ -40,15 +40,48 @@ func connetingToClient(infoHash, peerID [20]byte, address net.TCPAddr) (*Client,
 	}
 
 	peerClient.Connection.SetDeadline(time.Now().Add(time.Second * 5))
+
 	defer peerClient.Connection.SetDeadline(time.Time{})
 
 	resp, err := peerClient.handshake(infoHash, peerID)
 
 	if err != nil {
-		return nil, fmt.Errorf("handshake %s", err)
+		return nil, fmt.Errorf("%s handshake %s", resp, err)
 	}
 
-	return nil, nil
+	if len(peerClient.bitfield) == 0 {
+
+		peerClient.Connection.SetDeadline(time.Now().Add(time.Second * 5))
+		_, err = peerClient.RecieiveMessage()
+
+		if err != nil {
+			return nil, fmt.Errorf("Receiving bitfield message")
+		}
+	}
+
+	if peerClient.hasDHT {
+
+		peerClient.Connection.SetDeadline(time.Now().Add(time.Second * 5))
+
+		for count := 0; count < 50 && peerClient.dhtPort == 0; count++ {
+			peerClient.RecieiveMessage()
+		}
+
+	}
+
+	peerClient.Connection.SetDeadline(time.Now().Add(time.Second * 5))
+
+	err = peerClient.SendMessage(MsgUnchoke, nil)
+	if err != nil {
+		return nil, fmt.Errorf("Sending unchoke:")
+	}
+
+	err = peerClient.SendMessage(MsgInterested, nil)
+	if err != nil {
+		return nil, fmt.Errorf("Sending interested")
+	}
+
+	return &peerClient, nil
 
 }
 
