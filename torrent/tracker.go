@@ -57,7 +57,7 @@ func TrackerURL(trackerURL string, infoHash, peerID [20]byte, port int) ([]net.T
 
 	link, err := url.Parse(trackerURL)
 	if err != nil {
-		fmt.Errorf("Error in making trackerURL")
+		return nil, fmt.Errorf("Error in making trackerURL")
 	}
 
 	if link.Scheme == "http" || link.Scheme == "https" {
@@ -73,11 +73,11 @@ func TrackerURL(trackerURL string, infoHash, peerID [20]byte, port int) ([]net.T
 		link.RawQuery = parameters.Encode()
 
 		//making the request
-		getTrackerInfo := &http.Client{Timeout: 4 * time.Second}
+		getTrackerInfo := &http.Client{Timeout: 8 * time.Second}
 		resp, err := getTrackerInfo.Get(link.String())
 
 		if err != nil {
-			fmt.Errorf("Error in GET Tracker")
+			return nil, fmt.Errorf("Error in GET Tracker")
 		}
 
 		defer resp.Body.Close()
@@ -86,7 +86,7 @@ func TrackerURL(trackerURL string, infoHash, peerID [20]byte, port int) ([]net.T
 
 		raw, err := io.ReadAll(resp.Body)
 		if err != nil {
-			fmt.Errorf("Error in Reading tracker responce")
+			return nil, fmt.Errorf("Error in Reading tracker responce")
 		}
 
 		err = bencode.DecodeBytes(raw, &trackRes)
@@ -100,10 +100,8 @@ func TrackerURL(trackerURL string, infoHash, peerID [20]byte, port int) ([]net.T
 		}
 
 		for i := 0; i < len(trackRes.Peers); i += peerSize {
-			// convert port substring into byte slice to calculate via BigEndian
-			portRaw := []byte(trackRes.Peers[i+4 : i+6])
 
-			port := binary.BigEndian.Uint16(portRaw)
+			port := binary.BigEndian.Uint16([]byte(trackRes.Peers[i+4 : i+6]))
 
 			peerAddresses = append(peerAddresses, net.TCPAddr{
 

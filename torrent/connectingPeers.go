@@ -25,9 +25,9 @@ type Handshake struct {
 	PeerID   [20]byte
 }
 
-func connetingToClient(infoHash, peerID [20]byte, address net.TCPAddr) (*Client, error) {
+func ConnetingToClient(infoHash, peerID [20]byte, address net.TCPAddr) (*Client, error) {
 
-	connection, err := net.DialTimeout("tcp", address.String(), 5*time.Second)
+	connection, err := net.DialTimeout("tcp", address.String(), 8*time.Second)
 
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func connetingToClient(infoHash, peerID [20]byte, address net.TCPAddr) (*Client,
 		isChoked:   true,
 	}
 
-	peerClient.Connection.SetDeadline(time.Now().Add(time.Second * 5))
+	peerClient.Connection.SetDeadline(time.Now().Add(time.Second * 8))
 
 	defer peerClient.Connection.SetDeadline(time.Time{})
 
@@ -51,17 +51,20 @@ func connetingToClient(infoHash, peerID [20]byte, address net.TCPAddr) (*Client,
 
 	if len(peerClient.bitfield) == 0 {
 
-		peerClient.Connection.SetDeadline(time.Now().Add(time.Second * 5))
+		peerClient.Connection.SetDeadline(time.Now().Add(time.Second * 8))
 		_, err = peerClient.RecieiveMessage()
 
 		if err != nil {
 			return nil, fmt.Errorf("Receiving bitfield message")
 		}
+		if len(peerClient.bitfield) == 0 {
+			return nil, fmt.Errorf("bitfield not set")
+		}
 	}
 
 	if peerClient.hasDHT {
 
-		peerClient.Connection.SetDeadline(time.Now().Add(time.Second * 5))
+		peerClient.Connection.SetDeadline(time.Now().Add(time.Second * 8))
 
 		for count := 0; count < 50 && peerClient.dhtPort == 0; count++ {
 			peerClient.RecieiveMessage()
@@ -69,7 +72,7 @@ func connetingToClient(infoHash, peerID [20]byte, address net.TCPAddr) (*Client,
 
 	}
 
-	peerClient.Connection.SetDeadline(time.Now().Add(time.Second * 5))
+	peerClient.Connection.SetDeadline(time.Now().Add(time.Second * 8))
 
 	err = peerClient.SendMessage(MsgUnchoke, nil)
 	if err != nil {
@@ -96,7 +99,11 @@ func (peerClient *Client) handshake(infoHash, peerID [20]byte) (*Handshake, erro
 	var buffer bytes.Buffer
 	buffer.WriteByte(byte(len(peerHandshake.Protocol)))
 	buffer.WriteString(peerHandshake.Protocol)
-	buffer.Write(make([]byte, 8)) //reserved
+
+	dhtByte := make([]byte, 8)
+	dhtByte[7] |= 1
+	buffer.Write(dhtByte)
+
 	buffer.Write(peerHandshake.InfoHash[:])
 	buffer.Write(peerID[:])
 
@@ -133,15 +140,15 @@ func (peerClient *Client) handshake(infoHash, peerID [20]byte) (*Handshake, erro
 		peerClient.hasDHT = true
 	}
 
-	var responceInfoHash, responcePeerID [20]byte
+	var responceInfoHash [20]byte
 
-	copy(infoHash[:], handshakeBuffer[protocolLenght+8:protocolLenght+8+20])
-	copy(peerID[:], handshakeBuffer[protocolLenght+8+20:])
+	read += copy(responceInfoHash[:], handshakeBuffer[read:read+20])
+	copy(peerClient.peerID[:], handshakeBuffer[read:])
 
 	responceHandshake := Handshake{
 		Protocol: string(handshakeBuffer[0:protocolLenght]),
 		InfoHash: responceInfoHash,
-		PeerID:   responcePeerID,
+		PeerID:   peerClient.peerID,
 	}
 
 	if !bytes.Equal(responceHandshake.InfoHash[:], infoHash[:]) {

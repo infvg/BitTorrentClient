@@ -1,9 +1,13 @@
 package torrent
 
 import (
+	"bytes"
+	"crypto/sha1"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"io"
+	"time"
 )
 
 type messageID uint8
@@ -130,4 +134,79 @@ func (bf bitfield) SetPiece(index int) {
 	mask := 1 << (7 - offset)
 	bf[byteIndex] |= byte(mask)
 
+}
+
+func (peerClient *Client) GetPiece(pieceIndex, length int, hash [20]byte) ([]byte, error) {
+
+	const maxBlockSize = 16384
+	const maxBacklog = 15
+
+	if !peerClient.bitfield.HasPiece(pieceIndex) {
+		return nil, errors.New("Peer does not have the requested piece")
+	}
+
+	peerClient.Connection.SetDeadline(time.Now().Add(time.Second * 15))
+	defer peerClient.Connection.SetDeadline(time.Time{})
+
+	var requested, received, backlog int
+	pieceBuffer := make([]byte, length)
+	for received < length {
+
+		for !peerClient.isChoked && backlog < maxBacklog && requested < length {
+
+			payload := make([]byte, 12)
+			binary.BigEndian.PutUint32(payload[0:4], uint32(pieceIndex))
+			binary.BigEndian.PutUint32(payload[4:8], uint32(requested))
+
+			blockSize := maxBlockSize
+
+			if requested+blockSize > length {
+				blockSize = length - requested
+			}
+			binary.BigEndian.PutUint32(payload[8:12], uint32(blockSize))
+
+			err := peerClient.SendMessage(MsgRequest, payload)
+			if err != nil {
+				return nil, fmt.Errorf("Creating Backlog: %s", err)
+			}
+			requested += blockSize
+			backlog++
+		}
+
+		if peerClient.isChoked {
+			err := peerClient.SendMessage(MsgUnchoke, nil)
+			if err != nil {
+				return nil, fmt.Errorf("Unchoke peer client: %s", err)
+			}
+		}
+
+		msg, err := peerClient.RecieiveMessage()
+		if err != nil {
+			return nil, fmt.Errorf("receiving piece message from peer: %w", err)
+		}
+
+		if msg.id != MsgPiece {
+			continue
+		}
+		respIndex := binary.BigEndian.Uint32(msg.payload[0:4])
+		if respIndex != uint32(pieceIndex) {
+			continue
+		}
+
+		start := binary.BigEndian.Uint32(msg.payload[4:8])
+		blockData := msg.payload[8:]
+		n := copy(pieceBuffer[start:], blockData[:])
+
+		if n != 0 {
+			received += n
+			backlog--
+		}
+	}
+
+	pieceHash := sha1.Sum(pieceBuffer)
+	if !bytes.Equal(pieceHash[:], hash[:]) {
+		return nil, fmt.Errorf("InfoHash dont match from %s", peerClient.Connection.RemoteAddr())
+	}
+
+	return pieceBuffer, nil
 }
