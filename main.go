@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"net"
 	"sync"
@@ -142,6 +143,10 @@ func (files *torrentDownloadInfo) DownloadFiles() error {
 				}
 				if err != nil {
 					jobsQueue <- piece
+					if errors.Is(err, torrent.PieceNotFound) {
+						continue
+					}
+
 					return
 				}
 

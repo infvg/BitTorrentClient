@@ -136,13 +136,15 @@ func (bf bitfield) SetPiece(index int) {
 
 }
 
+var PieceNotFound = errors.New("Peer does not have the requested piece")
+
 func (peerClient *Client) GetPiece(pieceIndex, length int, hash [20]byte) ([]byte, error) {
 
 	const maxBlockSize = 16384
 	const maxBacklog = 15
 
 	if !peerClient.bitfield.HasPiece(pieceIndex) {
-		return nil, errors.New("Peer does not have the requested piece")
+		return nil, PieceNotFound
 	}
 
 	peerClient.Connection.SetDeadline(time.Now().Add(time.Second * 15))
