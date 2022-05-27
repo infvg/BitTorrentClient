@@ -32,9 +32,9 @@ type bencodeInfo struct {
 }
 
 type File struct {
-	Length   int
-	FullPath string
-	MD5Hash  string
+	Length  int
+	Path    string
+	MD5Hash string
 }
 
 type TorrentFile struct {
@@ -102,17 +102,17 @@ func (torFile *TorrentFile) AddingInfoMeta(metadata []byte) error {
 
 	if info.Length != 0 { // if there is one file
 		torFile.Files = append(torFile.Files, File{
-			Length:   info.Length,
-			FullPath: info.Name,
+			Length: info.Length,
+			Path:   info.Name,
 		})
 		torFile.TotalLength = info.Length
 	} else { // if the torrent contains multiple files
 		for _, f := range info.Files {
 			subPaths := append([]string{info.Name}, f.Path...)
 			torFile.Files = append(torFile.Files, File{
-				Length:   f.Length,
-				FullPath: filepath.Join(subPaths...),
-				MD5Hash:  f.MD5Hash,
+				Length:  f.Length,
+				Path:    filepath.Join(subPaths...),
+				MD5Hash: f.MD5Hash,
 			})
 			torFile.TotalLength += f.Length
 		}

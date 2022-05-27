@@ -163,6 +163,7 @@ func (peerClient *Client) GetPiece(pieceIndex, length int, hash [20]byte) ([]byt
 			if requested+blockSize > length {
 				blockSize = length - requested
 			}
+
 			binary.BigEndian.PutUint32(payload[8:12], uint32(blockSize))
 
 			err := peerClient.SendMessage(MsgRequest, payload)

@@ -2,6 +2,9 @@ package main
 
 import (
 	"client/torrent"
+	"os"
+	"path/filepath"
+	"time"
 
 	"crypto/rand"
 	"fmt"
@@ -11,18 +14,25 @@ import (
 
 /*
 TO DO:
-- Actually Downloading the piece
 - After the interval has passed we should recheck the tracker
--Concurrency so it downloads from all trackers/Peers at the same time and with the Interval value given rechecks at those intervals
+- Concurrency so it downloads from all trackers/Peers at the same time and with the Interval value given rechecks at those intervals
+- Gives the Download speed
+- UI
+- Writing data to file has pieces are retrieved
 */
 
 func main() {
 
-	Download("[Yameii] Attack on Titan The Final Season - 28 [English Dub] [WEB-DL 1080p] [D3857496].mkv.torrent") // gets all the peerInfo next we need to request the pieces
+	ready, err := DownloadInfo("[Yameii] Attack on Titan The Final Season - 28 [English Dub] [WEB-DL 1080p] [D3857496].mkv.torrent") // gets all the peerInfo next we need to request the pieces
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	ready.DownloadFiles()
 
 }
 
-type torrentDownload struct {
+type torrentDownloadInfo struct {
 	torrent     torrent.TorrentFile
 	peerClients []*torrent.Client
 }
@@ -37,7 +47,7 @@ type pieceResult struct {
 	FilePiece []byte
 }
 
-func Download(path string) (*torrentDownload, error) {
+func DownloadInfo(path string) (*torrentDownloadInfo, error) {
 
 	var peerID [20]byte
 	rand.Read(peerID[:])
@@ -85,9 +95,13 @@ func Download(path string) (*torrentDownload, error) {
 	fmt.Println("Number of peers:", len(peerClients))
 	fmt.Println("\nPeers:\n", peerClients)
 
-	fmt.Println(torrentFile.Files)
+	for _, file := range torrentFile.Files {
+		fmt.Printf("File Name: %s\nSize: %.2f GB", file.Path, float64(file.Length)/(1024*1024*1024))
 
-	return &torrentDownload{
+	}
+	time.Sleep(4 * time.Second)
+
+	return &torrentDownloadInfo{
 		torrent:     torrentFile,
 		peerClients: peerClients,
 	}, nil
@@ -107,4 +121,87 @@ func getTrackerPeers(trackerURL string, infoHash, peerID [20]byte, port int, wg 
 	mutex.Unlock()
 	wg.Done()
 
+}
+
+func (files *torrentDownloadInfo) DownloadFiles() error {
+
+	jobsQueue := make(chan pieceJob, len(files.torrent.PiecesHash))
+	result := make(chan pieceResult)
+
+	for _, peers := range files.peerClients {
+		peers := peers
+
+		go func() {
+			for piece := range jobsQueue {
+
+				pieceBuffer, err := peers.GetPiece(piece.index, piece.length, piece.hash)
+
+				if err == nil {
+					//fmt.Println("Downloaded piece number", piece.index)
+
+				}
+				if err != nil {
+					jobsQueue <- piece
+					return
+				}
+
+				result <- pieceResult{
+					Index:     piece.index,
+					FilePiece: pieceBuffer,
+				}
+
+			}
+
+		}()
+
+	}
+
+	for index, hash := range files.torrent.PiecesHash {
+
+		length := files.torrent.PieceLength
+
+		if index == len(files.torrent.PiecesHash)-1 {
+			length = files.torrent.TotalLength - files.torrent.PieceLength*(len(files.torrent.PiecesHash)-1)
+
+		}
+
+		jobsQueue <- pieceJob{
+			index:  index,
+			length: length,
+			hash:   hash,
+		}
+
+	}
+	completedFilesBuffer := make([]byte, files.torrent.TotalLength)
+
+	for count := 0; count < len(files.torrent.PiecesHash); count++ {
+
+		piece := <-result
+
+		copy(completedFilesBuffer[piece.Index*files.torrent.PieceLength:], piece.FilePiece)
+
+		GBdone := (float64(count) / float64(len(files.torrent.PiecesHash))) * (float64(files.torrent.Files[0].Length) / (1024 * 1024 * 1024))
+		fmt.Printf("%0.2f%% Completed: %.2f/%.2fGB \n", (float64(count) / float64(len(files.torrent.PiecesHash)) * 100), GBdone, float64(files.torrent.Files[0].Length)/(1024*1024*1024))
+
+	}
+
+	close(jobsQueue)
+
+	fmt.Println("Writting Data to file")
+
+	var currentFileByte int
+	for _, file := range files.torrent.Files {
+		outputPath := filepath.Join("D:/Anime", file.Path)
+
+		filesBytes := completedFilesBuffer[currentFileByte : currentFileByte+file.Length]
+
+		err := os.WriteFile(outputPath, filesBytes, os.ModePerm)
+		currentFileByte += file.Length
+
+		if err != nil {
+			fmt.Println("File writting error", err)
+		}
+
+	}
+	return nil
 }
