@@ -2,12 +2,12 @@ package main
 
 import (
 	"client/torrent"
+	"errors"
 	"os"
 	"path/filepath"
 	"time"
 
 	"crypto/rand"
-	"errors"
 	"fmt"
 	"net"
 	"sync"
@@ -24,7 +24,7 @@ TO DO:
 
 func main() {
 
-	ready, err := DownloadInfo("[Yameii] Attack on Titan The Final Season - 28 [English Dub] [WEB-DL 1080p] [D3857496].mkv.torrent") // gets all the peerInfo next we need to request the pieces
+	ready, err := DownloadInfo("[Yameii] Attack on Titan OAD - 04 [English Dub] [WEB-DL 1080p] [364DD082].mkv.torrent") // gets all the peerInfo next we need to request the pieces
 
 	if err != nil {
 		fmt.Println(err)
@@ -143,9 +143,12 @@ func (files *torrentDownloadInfo) DownloadFiles() error {
 				}
 				if err != nil {
 					jobsQueue <- piece
+
 					if errors.Is(err, torrent.PieceNotFound) {
 						continue
 					}
+
+					fmt.Println("Num of Peers: ", len(files.peerClients))
 
 					return
 				}
