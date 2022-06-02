@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"log"
 	"net/url"
 
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/theme"
@@ -15,9 +17,15 @@ import (
 )
 
 /*
+Next:
+Fix Header Bar
+
+
 Make the first arrow and allign it, with color
 make a function for the tree
+make info,Tracker into buttons
 
+make resizing the app adjusts everyhting
 */
 
 func main() { // rage in the darkness
@@ -50,6 +58,8 @@ func main() { // rage in the darkness
 
 		}, myWindow)
 
+		log.Println(myWindow.Canvas().Size().Width)
+
 		fileReader.Resize(fyne.NewSize(500, 400))
 		fileReader.Show()
 	})
@@ -72,9 +82,12 @@ func main() { // rage in the darkness
 	menu2 := fyne.NewMenu("About", item2)
 
 	myWindow.SetMainMenu(fyne.NewMainMenu(menu, menu2))
-	// menu Done
 
-	split := container.NewVSplit(bodyContainer(), bottomInfo())
+	// menu Done
+	// 	split := container.NewVSplit(container.NewGridWithRows(2, bodyContainer(), container.NewMax(canvas.NewRectangle(color.Black), torrentList())), bottomInfo())
+
+	split := container.NewVSplit(container.NewGridWithRows(2, bodyContainer(), container.NewMax(canvas.NewRectangle(color.Black), torrentList())), bottomInfo())
+
 	myWindow.SetContent(split)
 
 	log.Println(theme.Padding())
@@ -148,8 +161,8 @@ func bodyContainer() fyne.CanvasObject {
 		TextStyle: fyne.TextStyle{
 			Bold: true,
 		},
-	}
-	//progressBar := canvas.NewText("Progress", color.White)*/
+	}*/
+	//progressBar := canvas.NewText("Progress", color.White)
 	seperator := widget.NewSeparator()
 	seperator2 := widget.NewSeparator()
 	seperator3 := widget.NewSeparator()
@@ -159,10 +172,21 @@ func bodyContainer() fyne.CanvasObject {
 	seperator7 := widget.NewSeparator()
 	seperator8 := widget.NewSeparator()
 
+	// 	treNodeIdd := []string{"widget.tre"}
+
+	// //	treeTest := widget.NewTree(func(tni widget.TreeNodeID) []widget.TreeNodeID { return treNodeIdd }, func(tni widget.TreeNodeID) bool { return true }, func(b bool) fyne.CanvasObject {
+
+	// 	return widget.NewButton("TreeButton", func() { fmt.Println("TreeButton") })
+	// 	}, func(tni widget.TreeNodeID, b bool, co fyne.CanvasObject) {})
+	//vertical := container.NewVBox(widget.NewLabel("test5"), widget.NewLabel("test3"), torrentList())
+	listss := torrentList()
+	listss.Resize(fyne.NewSize(400, 50))
+
 	header := container.NewWithoutLayout(
 		fileName,
 		seperator,
-		size, seperator2, progressBar, seperator3, Seeders, seperator4, Leechers, seperator5, downloadSpeed, seperator6, ETA, seperator7, date, seperator8, content)
+		size, seperator2, progressBar, seperator3, Seeders, seperator4, Leechers, seperator5, downloadSpeed, seperator6, ETA, seperator7, date, seperator8,
+		content)
 
 	ResizeAndMove(fileName, 0, 0, 298, 40)
 	ResizeAndMove(seperator, 298, 0, 3, 40)
@@ -188,6 +212,10 @@ func bodyContainer() fyne.CanvasObject {
 	ResizeAndMove(date, 912, 0, 80, 40)
 	ResizeAndMove(seperator8, 991, 0, 3, 40)
 
+	//ResizeAndMove(torrentList(), 0, 50, 950, 50)
+
+	log.Println(header.Size())
+
 	return header
 
 }
@@ -196,12 +224,34 @@ func ResizeAndMove(element fyne.CanvasObject, xPos, yPos, width, height float32)
 	element.Move(fyne.NewPos(xPos, yPos))
 }
 
+func torrentList() fyne.CanvasObject {
+
+	list := widget.NewList(
+		// lets change item count from 3 to 30
+		func() int { return 30 }, // my list contain 3 items
+
+		func() fyne.CanvasObject {
+
+			size := widget.NewLabel("1.07GB")
+
+			row := container.NewHBox(widget.NewLabel("Attack On Titan S04Ep28"), canvas.NewRectangle(color.Black), size, widget.NewProgressBar())
+			//	container.NewAdaptiveGrid()
+
+			return row
+
+		},
+		// last one
+		func(lii widget.ListItemID, co fyne.CanvasObject) {
+			// update data of widget
+			//co.(*widget.Label).SetText("Here is my Newtext")
+
+			//co.Resize(fyne.NewSize(150, 50))
+		},
+	)
+	return list
+}
+
 /*
-
-
-
-
-
 
 &canvas.Line{
 			Position1:   fyne.NewPos(130, 0),
@@ -232,14 +282,13 @@ func headerRow() fyne.CanvasObject {
 
 	ResizeAndMove(objects[0], col1Width, col1X, l.maxMinSizeHeight)
 
-}
-*/
+}*/
 
 func bottomInfo() fyne.CanvasObject {
 
-	tree := widget.NewLabel("Information")
-	tree2 := widget.NewLabel("Peers")
-	tree3 := widget.NewLabel("Tracker Stats")
+	tree := widget.NewButton("Information", nil)
+	tree2 := widget.NewButton("Peers", nil)
+	tree3 := widget.NewButton("Tracker Stats", nil)
 
-	return container.NewHBox(tree, tree2, tree3)
+	return container.NewBorder(container.NewHBox(tree, tree2, tree3), nil, nil, nil)
 }
