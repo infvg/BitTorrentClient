@@ -9,7 +9,6 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
-	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
 	"fyne.io/fyne/v2"
@@ -85,17 +84,28 @@ func main() { // rage in the darkness
 
 	// menu Done
 	// 	split := container.NewVSplit(container.NewGridWithRows(2, bodyContainer(), container.NewMax(canvas.NewRectangle(color.Black), torrentList())), bottomInfo())
+	seperator1 := widget.NewSeparator()
+	seperator1.Resize(fyne.NewSize(3, 0))
+	// listTets := container.NewMax(canvas.NewRectangle(color.Black), torrentList())
 
-	split := container.NewVSplit(container.NewGridWithRows(2, bodyContainer(), container.NewMax(canvas.NewRectangle(color.Black), torrentList())), bottomInfo())
+	// layoutTest := container.NewWithoutLayout(container.NewVBox(bodyContainer(myWindow.Canvas().Size()), seperator1), listTets)
+	// listTets.Resize(fyne.NewSize(1000, 500))
+	// listTets.Move(fyne.NewPos(0, 50))
 
+	split := container.NewVSplit(container.NewGridWithRows(2, container.NewVBox(bodyContainer(myWindow.Canvas().Size()), seperator1), container.NewMax(canvas.NewRectangle(color.Black), torrentList())), bottomInfo())
+	//split := container.NewVSplit(layoutTest, bottomInfo())
+
+	split.Offset = 1.0
 	myWindow.SetContent(split)
 
-	log.Println(theme.Padding())
+	log.Println("Hreres", split.Trailing.Position())
 
 	myWindow.ShowAndRun()
 }
 
-func bodyContainer() fyne.CanvasObject {
+func bodyContainer(size1 fyne.Size) fyne.CanvasObject {
+
+	log.Println("SIZE:", size1)
 
 	content := container.NewMax()
 	size := &widget.Button{
@@ -150,7 +160,7 @@ func bodyContainer() fyne.CanvasObject {
 	date := &widget.Button{
 		Alignment:  widget.ButtonAlignCenter,
 		Text:       " Date ",
-		OnTapped:   func() { fmt.Println("Tap Download") },
+		OnTapped:   func() { fmt.Println("Tap Download", ETA.Position()) },
 		Importance: widget.HighImportance,
 	}
 	/*progressBar := &canvas.Text{
@@ -212,8 +222,6 @@ func bodyContainer() fyne.CanvasObject {
 	ResizeAndMove(date, 912, 0, 80, 40)
 	ResizeAndMove(seperator8, 991, 0, 3, 40)
 
-	//ResizeAndMove(torrentList(), 0, 50, 950, 50)
-
 	log.Println(header.Size())
 
 	return header
@@ -226,18 +234,53 @@ func ResizeAndMove(element fyne.CanvasObject, xPos, yPos, width, height float32)
 
 func torrentList() fyne.CanvasObject {
 
+	sty := &fyne.TextStyle{
+		Bold: true,
+	}
+
+	item := widget.NewAccordionItem("Attack On Titan S04Ep28", widget.NewLabel("The Episode"))
+	fileName := widget.NewAccordion(item)
+	size := widget.NewLabelWithStyle("1.07GB", fyne.TextAlignCenter, *sty)
+	proBar := widget.NewProgressBar()
+	seeders := widget.NewLabelWithStyle("8", fyne.TextAlignCenter, *sty)
+	leechers := widget.NewLabelWithStyle("18", fyne.TextAlignCenter, *sty)
+	downloadSpeed := widget.NewLabelWithStyle("5.4 MB/s", fyne.TextAlignCenter, *sty)
+	ETA := widget.NewLabelWithStyle("9 Min ", fyne.TextAlignCenter, *sty)
+	dateOfAdd := widget.NewLabelWithStyle("6/2/2022", fyne.TextAlignCenter, *sty)
+
+	//ResizeAndMove(fileName, 0, 0, 298, 40)
+
+	ResizeAndMove(size, 295, 0, 62, 40)
+
+	ResizeAndMove(proBar, 380, 0, 120, 35)
+
+	ResizeAndMove(seeders, 511, 0, 80, 40)
+
+	ResizeAndMove(leechers, 592, 0, 80, 40)
+
+	ResizeAndMove(downloadSpeed, 672, 0, 160, 40)
+
+	ResizeAndMove(ETA, 832, 0, 80, 40)
+
+	ResizeAndMove(dateOfAdd, 912, 0, 80, 40)
+	proBar.SetValue(.92)
+
 	list := widget.NewList(
 		// lets change item count from 3 to 30
 		func() int { return 30 }, // my list contain 3 items
 
 		func() fyne.CanvasObject {
 
-			size := widget.NewLabel("1.07GB")
+			//pro.Resize(fyne.NewSize(200, 50))
 
-			row := container.NewHBox(widget.NewLabel("Attack On Titan S04Ep28"), canvas.NewRectangle(color.Black), size, widget.NewProgressBar())
+			//item1 := widget.NewAccordionItem("Attack On Titan S04Ep28", widget.NewLabel("The Episode"))
+
+			//row := container.NewHBox(ac, canvas.NewRectangle(color.Black), size, pro, widget.NewLabel("11"), widget.NewLabel("18"), widget.NewLabel("5.4 MB/s"), widget.NewLabel("9 Min "), widget.NewLabel("6/2/2022"))
 			//	container.NewAdaptiveGrid()
 
-			return row
+			row2 := container.NewWithoutLayout(fileName, size, proBar, seeders, leechers, downloadSpeed, ETA, dateOfAdd)
+
+			return row2
 
 		},
 		// last one
