@@ -17,14 +17,8 @@ import (
 
 /*
 Next:
-Fix Header Bar
-
-
-Make the first arrow and allign it, with color
-make a function for the tree
-make info,Tracker into buttons
-
-make resizing the app adjusts everyhting
+Fix Scaling
+Make bottomButtons work
 */
 
 func main() { // rage in the darkness
@@ -35,6 +29,7 @@ func main() { // rage in the darkness
 	myApp := app.New()
 	myWindow := myApp.NewWindow("ReTorrent")
 	myWindow.Resize(fyne.NewSize(1000, 500))
+	//	myWindow.SetFixedSize(true)
 
 	appIcon, _ := fyne.LoadResourceFromPath("C:/Users/dontw/Downloads/nk257hl881b81.jpg")
 	myApp.SetIcon(appIcon)
@@ -83,35 +78,34 @@ func main() { // rage in the darkness
 	myWindow.SetMainMenu(fyne.NewMainMenu(menu, menu2))
 
 	// menu Done
-	// 	split := container.NewVSplit(container.NewGridWithRows(2, bodyContainer(), container.NewMax(canvas.NewRectangle(color.Black), torrentList())), bottomInfo())
 	seperator1 := widget.NewSeparator()
-	seperator1.Resize(fyne.NewSize(3, 0))
-	// listTets := container.NewMax(canvas.NewRectangle(color.Black), torrentList())
-
-	// layoutTest := container.NewWithoutLayout(container.NewVBox(bodyContainer(myWindow.Canvas().Size()), seperator1), listTets)
-	// listTets.Resize(fyne.NewSize(1000, 500))
-	// listTets.Move(fyne.NewPos(0, 50))
-
-	split := container.NewVSplit(container.NewGridWithRows(2, container.NewVBox(bodyContainer(myWindow.Canvas().Size()), seperator1), container.NewMax(canvas.NewRectangle(color.Black), torrentList())), bottomInfo())
-	//split := container.NewVSplit(layoutTest, bottomInfo())
+	seperator1.Resize(fyne.NewSize(20, 0))
+	split := container.NewVSplit(container.NewBorder(container.NewVBox(bodyContainer(myWindow), seperator1), nil, nil, nil, container.NewMax(canvas.NewRectangle(color.Black), torrentList())), bottomInfo(myWindow))
 
 	split.Offset = 1.0
 	myWindow.SetContent(split)
 
-	log.Println("Hreres", split.Trailing.Position())
+	log.Println("Hreres", myWindow.Canvas().Size())
 
 	myWindow.ShowAndRun()
+
 }
 
-func bodyContainer(size1 fyne.Size) fyne.CanvasObject {
+func bodyContainer(win fyne.Window) fyne.CanvasObject {
 
-	log.Println("SIZE:", size1)
+	log.Println("SIZE:", win.Canvas().Size().Width)
 
 	content := container.NewMax()
 	size := &widget.Button{
-		Alignment:  widget.ButtonAlignCenter,
-		Text:       " Size ",
-		OnTapped:   func() { fmt.Println("Tap Size") },
+		Alignment: widget.ButtonAlignCenter,
+		Text:      " Size ",
+		OnTapped: func() {
+			fmt.Println("Tap Size")
+
+			win.Canvas().Content().Refresh()
+			log.Println("Refresh:", win.Canvas().Size().Width)
+
+		},
 		Importance: widget.HighImportance,
 	}
 
@@ -192,37 +186,108 @@ func bodyContainer(size1 fyne.Size) fyne.CanvasObject {
 	listss := torrentList()
 	listss.Resize(fyne.NewSize(400, 50))
 
+	REsize := &widget.Button{
+		Alignment: widget.ButtonAlignCenter,
+		Text:      " Size ",
+		OnTapped: func() {
+			fmt.Println("Tap Size")
+			lenghtDif := (win.Canvas().Size().Width - 1000) / 8
+			fmt.Println("Tap CHange", lenghtDif)
+			ResizeAndMove(fileName, 0, 0, 298+lenghtDif, 40)
+			ResizeAndMove(seperator, 298+lenghtDif, 0, 3, 40)
+
+			ResizeAndMove(size, 301+lenghtDif, 0, 62+lenghtDif, 40)
+			ResizeAndMove(seperator2, 362+(2*lenghtDif), 0, 3, 40)
+
+			ResizeAndMove(progressBar, 365+(2*lenghtDif), 0, 145+(lenghtDif), 40)
+			ResizeAndMove(seperator3, 508+(3*lenghtDif), 0, 3, 39)
+
+			ResizeAndMove(Seeders, 511+(3*lenghtDif), 0, 80+(lenghtDif), 40)
+			ResizeAndMove(seperator4, 590+(4*lenghtDif), 0, 3, 40)
+
+			ResizeAndMove(Leechers, 592+(4*lenghtDif), 0, 80+(lenghtDif), 40)
+			ResizeAndMove(seperator5, 671+(5*lenghtDif), 0, 3, 40)
+
+			ResizeAndMove(downloadSpeed, 672+(5*lenghtDif), 0, 160+(lenghtDif), 40)
+			ResizeAndMove(seperator6, 830+(6*lenghtDif), 0, 3, 40)
+
+			ResizeAndMove(ETA, 832+(6*lenghtDif), 0, 80+(lenghtDif), 40)
+			ResizeAndMove(seperator7, 910+(7*lenghtDif), 0, 3, 40)
+
+			ResizeAndMove(date, 912+(7*lenghtDif), 0, 80+(lenghtDif), 40)
+			ResizeAndMove(seperator8, 991+(8*lenghtDif), 0, 3, 40)
+
+			win.Canvas().Content().Refresh()
+			log.Println("Refresh:", win.Canvas().Size().Width)
+
+		},
+		Importance: widget.HighImportance,
+	}
+	ResizeAndMove(REsize, 0, 100, 60, 40)
+
 	header := container.NewWithoutLayout(
 		fileName,
-		seperator,
+		seperator, REsize,
 		size, seperator2, progressBar, seperator3, Seeders, seperator4, Leechers, seperator5, downloadSpeed, seperator6, ETA, seperator7, date, seperator8,
 		content)
 
-	ResizeAndMove(fileName, 0, 0, 298, 40)
-	ResizeAndMove(seperator, 298, 0, 3, 40)
+	if win.Canvas().Size().Width != 1000 && win.Canvas().Size().Width > 1001 {
+		log.Println("Less ", win.Canvas().Size().Width)
+		lenghtDif := win.Canvas().Size().Width - 1000
 
-	ResizeAndMove(size, 301, 0, 62, 40)
-	ResizeAndMove(seperator2, 362, 0, 3, 40)
+		ResizeAndMove(fileName, 0, 0, 298+lenghtDif, 40)
+		ResizeAndMove(seperator, 298+lenghtDif, 0, 3, 40)
 
-	ResizeAndMove(progressBar, 365, 0, 145, 40)
-	ResizeAndMove(seperator3, 508, 0, 3, 39)
+		ResizeAndMove(size, 301+lenghtDif, 0, 62+lenghtDif, 40)
+		ResizeAndMove(seperator2, 362+lenghtDif, 0, 3, 40)
 
-	ResizeAndMove(Seeders, 511, 0, 80, 40)
-	ResizeAndMove(seperator4, 590, 0, 3, 40)
+		ResizeAndMove(progressBar, 365+lenghtDif, 0, 145+lenghtDif, 40)
+		ResizeAndMove(seperator3, 508+lenghtDif, 0, 3, 39)
 
-	ResizeAndMove(Leechers, 592, 0, 80, 40)
-	ResizeAndMove(seperator5, 671, 0, 3, 40)
+		ResizeAndMove(Seeders, 511+lenghtDif, 0, 80+lenghtDif, 40)
+		ResizeAndMove(seperator4, 590+lenghtDif, 0, 3, 40)
 
-	ResizeAndMove(downloadSpeed, 672, 0, 160, 40)
-	ResizeAndMove(seperator6, 830, 0, 3, 40)
+		ResizeAndMove(Leechers, 592+lenghtDif, 0, 80+lenghtDif, 40)
+		ResizeAndMove(seperator5, 671+lenghtDif, 0, 3, 40)
 
-	ResizeAndMove(ETA, 832, 0, 80, 40)
-	ResizeAndMove(seperator7, 910, 0, 3, 40)
+		ResizeAndMove(downloadSpeed, 672+lenghtDif, 0, 160+lenghtDif, 40)
+		ResizeAndMove(seperator6, 830+lenghtDif, 0, 3, 40)
 
-	ResizeAndMove(date, 912, 0, 80, 40)
-	ResizeAndMove(seperator8, 991, 0, 3, 40)
+		ResizeAndMove(ETA, 832+lenghtDif, 0, 80+lenghtDif, 40)
+		ResizeAndMove(seperator7, 910+lenghtDif, 0, 3, 40)
 
-	log.Println(header.Size())
+		ResizeAndMove(date, 912+lenghtDif, 0, 80+lenghtDif, 40)
+		ResizeAndMove(seperator8, 991+lenghtDif, 0, 3, 40)
+
+	} else {
+
+		ResizeAndMove(fileName, 0, 0, 298, 40)
+		ResizeAndMove(seperator, 298, 0, 3, 40)
+
+		ResizeAndMove(size, 301, 0, 62, 40)
+		ResizeAndMove(seperator2, 362, 0, 3, 40)
+
+		ResizeAndMove(progressBar, 365, 0, 145, 40)
+		ResizeAndMove(seperator3, 508, 0, 3, 39)
+
+		ResizeAndMove(Seeders, 511, 0, 80, 40)
+		ResizeAndMove(seperator4, 590, 0, 3, 40)
+
+		ResizeAndMove(Leechers, 592, 0, 80, 40)
+		ResizeAndMove(seperator5, 671, 0, 3, 40)
+
+		ResizeAndMove(downloadSpeed, 672, 0, 160, 40)
+		ResizeAndMove(seperator6, 830, 0, 3, 40)
+
+		ResizeAndMove(ETA, 832, 0, 80, 40)
+		ResizeAndMove(seperator7, 910, 0, 3, 40)
+
+		ResizeAndMove(date, 912, 0, 80, 40)
+		ResizeAndMove(seperator8, 991, 0, 3, 40)
+
+	}
+
+	log.Println("DONE")
 
 	return header
 
@@ -327,11 +392,31 @@ func headerRow() fyne.CanvasObject {
 
 }*/
 
-func bottomInfo() fyne.CanvasObject {
+func bottomInfo(win fyne.Window) fyne.CanvasObject {
 
-	tree := widget.NewButton("Information", nil)
-	tree2 := widget.NewButton("Peers", nil)
-	tree3 := widget.NewButton("Tracker Stats", nil)
+	displayInfo := container.NewMax()
+	info := container.NewGridWithColumns(2, widget.NewLabel("Torrent File:"), widget.NewLabel("Hash:"), widget.NewLabel("Downloaded:"), widget.NewLabel("Number of Pieces left:"), widget.NewLabel("File List:"), widget.NewLabel("Saved PATH:"))
 
-	return container.NewBorder(container.NewHBox(tree, tree2, tree3), nil, nil, nil)
+	peerList := widget.NewList(func() int { return 5 }, func() fyne.CanvasObject { return widget.NewLabel("198.565.256.87 Country: Antartica") }, func(lii widget.ListItemID, co fyne.CanvasObject) {})
+	peerInfo := container.NewBorder(container.NewVBox(widget.NewLabel("Number of Connected Peers:"), widget.NewLabel("Peer List:")), nil, nil, nil, peerList)
+
+	infoButton := widget.NewButton("Information", func() {
+		displayInfo = info
+		win.Canvas().Refresh(displayInfo)
+
+	})
+
+	peerInfoButton := widget.NewButton("Peers", func() {
+		displayInfo = peerInfo
+
+		log.Println("PeerButton ", win.Canvas().Size())
+		win.SetContent(displayInfo)
+	})
+	trackerButton := widget.NewButton("Tracker Stats", nil)
+
+	//trackerList:=
+
+	return container.NewBorder(container.NewVBox(container.NewHBox(infoButton, peerInfoButton, trackerButton)), nil, nil, nil, displayInfo)
+
+	//Information: TorrentName:, Size, how many GB left, Num of pieces left, Torrent hash, ALL the files in it list And Saved PATH
 }
