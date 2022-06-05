@@ -84,6 +84,7 @@ func main() { // rage in the darkness
 	// menu Done
 	seperator1 := widget.NewSeparator()
 	seperator1.Resize(fyne.NewSize(20, 0))
+
 	split := container.NewVSplit(container.NewBorder(container.NewVBox(header, seperator1), nil, nil, nil, container.NewMax(canvas.NewRectangle(color.Black), torrentlist1)), bottomInfo(myWindow))
 
 	split.Offset = 1.0
@@ -359,29 +360,54 @@ func torrentList(win fyne.Window) (fyne.CanvasObject, fyne.MenuItem) {
 
 func bottomInfo(win fyne.Window) fyne.CanvasObject {
 
-	displayInfo := container.NewMax()
 	info := container.NewGridWithColumns(2, widget.NewLabel("Torrent File:"), widget.NewLabel("Hash:"), widget.NewLabel("Downloaded:"), widget.NewLabel("Number of Pieces left:"), widget.NewLabel("File List:"), widget.NewLabel("Saved PATH:"))
-
 	peerList := widget.NewList(func() int { return 5 }, func() fyne.CanvasObject { return widget.NewLabel("198.565.256.87 Country: Antartica") }, func(lii widget.ListItemID, co fyne.CanvasObject) {})
 	peerInfo := container.NewBorder(container.NewVBox(widget.NewLabel("Number of Connected Peers:"), widget.NewLabel("Peer List:")), nil, nil, nil, peerList)
+	trackerList := widget.NewList(func() int { return 10 }, func() fyne.CanvasObject { return widget.NewLabel("udp://open.stealth.si:80/announce  ") }, func(lii widget.ListItemID, co fyne.CanvasObject) {})
+	trackerInfo := container.NewBorder(container.NewVBox(widget.NewLabel("Number of Trackers:"), widget.NewLabel("Tracker List:")), nil, nil, nil, trackerList)
+
+	trackerInfo.Hide()
+	info.Hide()
+	peerInfo.Hide()
 
 	infoButton := widget.NewButton("Information", func() {
-		displayInfo = info
-		win.Canvas().Refresh(displayInfo)
 
+		if info.Visible() {
+			info.Hide()
+		} else {
+			trackerInfo.Hide()
+			peerInfo.Hide()
+			info.Show()
+		}
+		win.Canvas().Refresh(info)
+	})
+
+	trackerButton := widget.NewButton("Tracker Stats", func() {
+		if trackerInfo.Visible() {
+			trackerInfo.Hide()
+		} else {
+			info.Hide()
+			peerInfo.Hide()
+			trackerInfo.Show()
+		}
+		win.Canvas().Refresh(trackerInfo)
 	})
 
 	peerInfoButton := widget.NewButton("Peers", func() {
-		displayInfo = peerInfo
+		if peerInfo.Visible() {
+			peerInfo.Hide()
+		} else {
 
-		log.Println("PeerButton ", win.Canvas().Size())
-		win.SetContent(displayInfo)
+			trackerInfo.Hide()
+			info.Hide()
+			peerInfo.Show()
+		}
+		win.Canvas().Refresh(peerInfo)
+
 	})
-	trackerButton := widget.NewButton("Tracker Stats", nil)
-
 	//trackerList:=
 
-	return container.NewBorder(container.NewVBox(container.NewHBox(infoButton, peerInfoButton, trackerButton)), nil, nil, nil, displayInfo)
+	return container.NewBorder(container.NewVBox(container.NewHBox(infoButton, peerInfoButton, trackerButton)), nil, nil, nil, info, peerInfo, trackerInfo)
 
 	//Information: TorrentName:, Size, how many GB left, Num of pieces left, Torrent hash, ALL the files in it list And Saved PATH
 }
