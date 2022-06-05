@@ -58,7 +58,9 @@ func main() { // rage in the darkness
 		fileReader.Show()
 	})
 
-	item3 := fyne.NewMenuItem("Magent Link", nil)
+	item3 := fyne.NewMenuItem("Magent Link", func() {
+
+	})
 
 	item2 := fyne.NewMenuItem("About", func() {
 
@@ -70,17 +72,19 @@ func main() { // rage in the darkness
 		}
 
 	})
+	header, item4 := bodyContainer(myWindow)
+	torrentlist1, item5 := torrentList(myWindow)
 
 	menu := fyne.NewMenu("File", item1, item3)
 
-	menu2 := fyne.NewMenu("About", item2)
+	menu2 := fyne.NewMenu("About", &item4, &item5, item2)
 
 	myWindow.SetMainMenu(fyne.NewMainMenu(menu, menu2))
 
 	// menu Done
 	seperator1 := widget.NewSeparator()
 	seperator1.Resize(fyne.NewSize(20, 0))
-	split := container.NewVSplit(container.NewBorder(container.NewVBox(bodyContainer(myWindow), seperator1), nil, nil, nil, container.NewMax(canvas.NewRectangle(color.Black), torrentList())), bottomInfo(myWindow))
+	split := container.NewVSplit(container.NewBorder(container.NewVBox(header, seperator1), nil, nil, nil, container.NewMax(canvas.NewRectangle(color.Black), torrentlist1)), bottomInfo(myWindow))
 
 	split.Offset = 1.0
 	myWindow.SetContent(split)
@@ -91,7 +95,7 @@ func main() { // rage in the darkness
 
 }
 
-func bodyContainer(win fyne.Window) fyne.CanvasObject {
+func bodyContainer(win fyne.Window) (fyne.CanvasObject, fyne.MenuItem) {
 
 	log.Println("SIZE:", win.Canvas().Size().Width)
 
@@ -102,7 +106,6 @@ func bodyContainer(win fyne.Window) fyne.CanvasObject {
 		OnTapped: func() {
 			fmt.Println("Tap Size")
 
-			win.Canvas().Content().Refresh()
 			log.Println("Refresh:", win.Canvas().Size().Width)
 
 		},
@@ -183,113 +186,72 @@ func bodyContainer(win fyne.Window) fyne.CanvasObject {
 	// 	return widget.NewButton("TreeButton", func() { fmt.Println("TreeButton") })
 	// 	}, func(tni widget.TreeNodeID, b bool, co fyne.CanvasObject) {})
 	//vertical := container.NewVBox(widget.NewLabel("test5"), widget.NewLabel("test3"), torrentList())
-	listss := torrentList()
-	listss.Resize(fyne.NewSize(400, 50))
-
-	REsize := &widget.Button{
-		Alignment: widget.ButtonAlignCenter,
-		Text:      " Size ",
-		OnTapped: func() {
-			fmt.Println("Tap Size")
-			lenghtDif := (win.Canvas().Size().Width - 1000) / 8
-			fmt.Println("Tap CHange", lenghtDif)
-			ResizeAndMove(fileName, 0, 0, 298+lenghtDif, 40)
-			ResizeAndMove(seperator, 298+lenghtDif, 0, 3, 40)
-
-			ResizeAndMove(size, 301+lenghtDif, 0, 62+lenghtDif, 40)
-			ResizeAndMove(seperator2, 362+(2*lenghtDif), 0, 3, 40)
-
-			ResizeAndMove(progressBar, 365+(2*lenghtDif), 0, 145+(lenghtDif), 40)
-			ResizeAndMove(seperator3, 508+(3*lenghtDif), 0, 3, 39)
-
-			ResizeAndMove(Seeders, 511+(3*lenghtDif), 0, 80+(lenghtDif), 40)
-			ResizeAndMove(seperator4, 590+(4*lenghtDif), 0, 3, 40)
-
-			ResizeAndMove(Leechers, 592+(4*lenghtDif), 0, 80+(lenghtDif), 40)
-			ResizeAndMove(seperator5, 671+(5*lenghtDif), 0, 3, 40)
-
-			ResizeAndMove(downloadSpeed, 672+(5*lenghtDif), 0, 160+(lenghtDif), 40)
-			ResizeAndMove(seperator6, 830+(6*lenghtDif), 0, 3, 40)
-
-			ResizeAndMove(ETA, 832+(6*lenghtDif), 0, 80+(lenghtDif), 40)
-			ResizeAndMove(seperator7, 910+(7*lenghtDif), 0, 3, 40)
-
-			ResizeAndMove(date, 912+(7*lenghtDif), 0, 80+(lenghtDif), 40)
-			ResizeAndMove(seperator8, 991+(8*lenghtDif), 0, 3, 40)
-
-			win.Canvas().Content().Refresh()
-			log.Println("Refresh:", win.Canvas().Size().Width)
-
-		},
-		Importance: widget.HighImportance,
-	}
-	ResizeAndMove(REsize, 0, 100, 60, 40)
-
-	header := container.NewWithoutLayout(
-		fileName,
-		seperator, REsize,
-		size, seperator2, progressBar, seperator3, Seeders, seperator4, Leechers, seperator5, downloadSpeed, seperator6, ETA, seperator7, date, seperator8,
-		content)
-
-	if win.Canvas().Size().Width != 1000 && win.Canvas().Size().Width > 1001 {
-		log.Println("Less ", win.Canvas().Size().Width)
-		lenghtDif := win.Canvas().Size().Width - 1000
-
+	item3 := fyne.NewMenuItem("Adjust Window", func() {
+		fmt.Println("Tap Size")
+		lenghtDif := (win.Canvas().Size().Width - 1000) / 8
+		fmt.Println("Tap CHange", lenghtDif)
 		ResizeAndMove(fileName, 0, 0, 298+lenghtDif, 40)
 		ResizeAndMove(seperator, 298+lenghtDif, 0, 3, 40)
 
 		ResizeAndMove(size, 301+lenghtDif, 0, 62+lenghtDif, 40)
-		ResizeAndMove(seperator2, 362+lenghtDif, 0, 3, 40)
+		ResizeAndMove(seperator2, 362+(2*lenghtDif), 0, 3, 40)
 
-		ResizeAndMove(progressBar, 365+lenghtDif, 0, 145+lenghtDif, 40)
-		ResizeAndMove(seperator3, 508+lenghtDif, 0, 3, 39)
+		ResizeAndMove(progressBar, 365+(2*lenghtDif), 0, 145+(lenghtDif), 40)
+		ResizeAndMove(seperator3, 508+(3*lenghtDif), 0, 3, 39)
 
-		ResizeAndMove(Seeders, 511+lenghtDif, 0, 80+lenghtDif, 40)
-		ResizeAndMove(seperator4, 590+lenghtDif, 0, 3, 40)
+		ResizeAndMove(Seeders, 511+(3*lenghtDif), 0, 80+(lenghtDif), 40)
+		ResizeAndMove(seperator4, 590+(4*lenghtDif), 0, 3, 40)
 
-		ResizeAndMove(Leechers, 592+lenghtDif, 0, 80+lenghtDif, 40)
-		ResizeAndMove(seperator5, 671+lenghtDif, 0, 3, 40)
+		ResizeAndMove(Leechers, 592+(4*lenghtDif), 0, 80+(lenghtDif), 40)
+		ResizeAndMove(seperator5, 671+(5*lenghtDif), 0, 3, 40)
 
-		ResizeAndMove(downloadSpeed, 672+lenghtDif, 0, 160+lenghtDif, 40)
-		ResizeAndMove(seperator6, 830+lenghtDif, 0, 3, 40)
+		ResizeAndMove(downloadSpeed, 672+(5*lenghtDif), 0, 160+(lenghtDif), 40)
+		ResizeAndMove(seperator6, 830+(6*lenghtDif), 0, 3, 40)
 
-		ResizeAndMove(ETA, 832+lenghtDif, 0, 80+lenghtDif, 40)
-		ResizeAndMove(seperator7, 910+lenghtDif, 0, 3, 40)
+		ResizeAndMove(ETA, 832+(6*lenghtDif), 0, 80+(lenghtDif), 40)
+		ResizeAndMove(seperator7, 910+(7*lenghtDif), 0, 3, 40)
 
-		ResizeAndMove(date, 912+lenghtDif, 0, 80+lenghtDif, 40)
-		ResizeAndMove(seperator8, 991+lenghtDif, 0, 3, 40)
+		ResizeAndMove(date, 912+(7*lenghtDif), 0, 80+(lenghtDif), 40)
+		ResizeAndMove(seperator8, 991+(8*lenghtDif), 0, 3, 40)
 
-	} else {
+		win.Canvas().Content().Refresh()
+		log.Println("Refresh:", win.Canvas().Size().Width)
 
-		ResizeAndMove(fileName, 0, 0, 298, 40)
-		ResizeAndMove(seperator, 298, 0, 3, 40)
+	})
 
-		ResizeAndMove(size, 301, 0, 62, 40)
-		ResizeAndMove(seperator2, 362, 0, 3, 40)
+	log.Println("GONE HERE")
 
-		ResizeAndMove(progressBar, 365, 0, 145, 40)
-		ResizeAndMove(seperator3, 508, 0, 3, 39)
+	ResizeAndMove(fileName, 0, 0, 298, 40)
+	ResizeAndMove(seperator, 298, 0, 3, 40)
 
-		ResizeAndMove(Seeders, 511, 0, 80, 40)
-		ResizeAndMove(seperator4, 590, 0, 3, 40)
+	ResizeAndMove(size, 301, 0, 62, 40)
+	ResizeAndMove(seperator2, 362, 0, 3, 40)
 
-		ResizeAndMove(Leechers, 592, 0, 80, 40)
-		ResizeAndMove(seperator5, 671, 0, 3, 40)
+	ResizeAndMove(progressBar, 365, 0, 145, 40)
+	ResizeAndMove(seperator3, 508, 0, 3, 39)
 
-		ResizeAndMove(downloadSpeed, 672, 0, 160, 40)
-		ResizeAndMove(seperator6, 830, 0, 3, 40)
+	ResizeAndMove(Seeders, 511, 0, 80, 40)
+	ResizeAndMove(seperator4, 590, 0, 3, 40)
 
-		ResizeAndMove(ETA, 832, 0, 80, 40)
-		ResizeAndMove(seperator7, 910, 0, 3, 40)
+	ResizeAndMove(Leechers, 592, 0, 80, 40)
+	ResizeAndMove(seperator5, 671, 0, 3, 40)
 
-		ResizeAndMove(date, 912, 0, 80, 40)
-		ResizeAndMove(seperator8, 991, 0, 3, 40)
+	ResizeAndMove(downloadSpeed, 672, 0, 160, 40)
+	ResizeAndMove(seperator6, 830, 0, 3, 40)
 
-	}
+	ResizeAndMove(ETA, 832, 0, 80, 40)
+	ResizeAndMove(seperator7, 910, 0, 3, 40)
 
-	log.Println("DONE")
+	ResizeAndMove(date, 912, 0, 80, 40)
+	ResizeAndMove(seperator8, 991, 0, 3, 40)
 
-	return header
+	header := container.NewWithoutLayout(
+		fileName,
+		seperator,
+		size, seperator2, progressBar, seperator3, Seeders, seperator4, Leechers, seperator5, downloadSpeed, seperator6, ETA, seperator7, date, seperator8,
+		content)
+
+	return header, *item3
 
 }
 func ResizeAndMove(element fyne.CanvasObject, xPos, yPos, width, height float32) {
@@ -297,7 +259,7 @@ func ResizeAndMove(element fyne.CanvasObject, xPos, yPos, width, height float32)
 	element.Move(fyne.NewPos(xPos, yPos))
 }
 
-func torrentList() fyne.CanvasObject {
+func torrentList(win fyne.Window) (fyne.CanvasObject, fyne.MenuItem) {
 
 	sty := &fyne.TextStyle{
 		Bold: true,
@@ -330,6 +292,31 @@ func torrentList() fyne.CanvasObject {
 	ResizeAndMove(dateOfAdd, 912, 0, 80, 40)
 	proBar.SetValue(.92)
 
+	item3 := fyne.NewMenuItem("Adjust Window", func() {
+		fmt.Println("Tap Size")
+		lenghtDif := (win.Canvas().Size().Width - 1000) / 8
+		fmt.Println("Tap CHange", lenghtDif)
+		ResizeAndMove(fileName, 0, 0, 298+lenghtDif, 40)
+
+		ResizeAndMove(size, 301+lenghtDif, 0, 62+lenghtDif, 40)
+
+		ResizeAndMove(proBar, 365+(2*lenghtDif), 0, 145+(lenghtDif), 40)
+
+		ResizeAndMove(seeders, 511+(3*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		ResizeAndMove(leechers, 592+(4*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		ResizeAndMove(downloadSpeed, 672+(5*lenghtDif), 0, 160+(lenghtDif), 40)
+
+		ResizeAndMove(ETA, 832+(6*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		ResizeAndMove(dateOfAdd, 912+(7*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		win.Canvas().Content().Refresh()
+		log.Println("Refresh:", win.Canvas().Size().Width)
+
+	})
+
 	list := widget.NewList(
 		// lets change item count from 3 to 30
 		func() int { return 30 }, // my list contain 3 items
@@ -356,7 +343,7 @@ func torrentList() fyne.CanvasObject {
 			//co.Resize(fyne.NewSize(150, 50))
 		},
 	)
-	return list
+	return list, *item3
 }
 
 /*
@@ -367,28 +354,6 @@ func torrentList() fyne.CanvasObject {
 			StrokeWidth: 2,
 			StrokeColor: color.White,
 		},
-
-
-func headerRow() fyne.CanvasObject {
-	col1Width := float32(25)
-	col1X := theme.Padding()
-
-	col2Width := (size.Width - col1Width) * 0.42
-	col2X := col1X + col1Width + theme.Padding()
-
-	col3Width := (size.Width - col2Width) * 0.25
-	col3X := col2X + col2Width + theme.Padding()
-
-	col4Width := (size.Width - col3Width) * 0.10
-	col4X := col3X + col3Width + theme.Padding()
-
-	col5Width := (size.Width - col4Width) * 0.13
-	col5X := col4X + col4Width + theme.Padding()
-
-	col6Width := (size.Width - col5X - col5Width)
-	col6X := col5X + col5Width - theme.Padding()
-
-	ResizeAndMove(objects[0], col1Width, col1X, l.maxMinSizeHeight)
 
 }*/
 
