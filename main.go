@@ -125,6 +125,7 @@ func getTrackerPeers(trackerURL string, infoHash, peerID [20]byte, port int, wg 
 }
 
 func (files *torrentDownloadInfo) DownloadFiles() error {
+	peerNum := len(files.peerClients)
 
 	jobsQueue := make(chan pieceJob, len(files.torrent.PiecesHash))
 	result := make(chan pieceResult)
@@ -147,8 +148,8 @@ func (files *torrentDownloadInfo) DownloadFiles() error {
 					if errors.Is(err, torrent.PieceNotFound) {
 						continue
 					}
-
-					fmt.Println("Num of Peers: ", len(files.peerClients))
+					peerNum--
+					fmt.Println("Num of Peers: ", peerNum)
 
 					return
 				}
