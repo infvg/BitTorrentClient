@@ -31,8 +31,8 @@ func main() { // rage in the darkness
 	myWindow.Resize(fyne.NewSize(1000, 500))
 	//	myWindow.SetFixedSize(true)
 
-	appIcon, _ := fyne.LoadResourceFromPath("C:/Users/dontw/Downloads/nk257hl881b81.jpg")
-	myApp.SetIcon(appIcon)
+	appIcon, _ := fyne.LoadResourceFromURLString("https://static.wikia.nocookie.net/leagueoflegends/images/4/4e/Avarosan_profileicon.png")
+	myWindow.SetIcon(appIcon)
 
 	item1 := fyne.NewMenuItem("Open Torrent", func() {
 
@@ -74,10 +74,13 @@ func main() { // rage in the darkness
 	})
 	header, item4 := bodyContainer(myWindow)
 	torrentlist1, item5 := torrentList(myWindow)
+	torrentlist2, item52 := torrentList2(myWindow)
+	torrentlist3, item123 := torrentList3(myWindow)
+	torrentlist4, item129 := torrentList4(myWindow)
 
 	menu := fyne.NewMenu("File", item1, item3)
 
-	menu2 := fyne.NewMenu("About", &item4, &item5, item2)
+	menu2 := fyne.NewMenu("About", &item4, &item5, &item123, &item129, &item52, item2)
 
 	myWindow.SetMainMenu(fyne.NewMainMenu(menu, menu2))
 
@@ -85,7 +88,7 @@ func main() { // rage in the darkness
 	seperator1 := widget.NewSeparator()
 	seperator1.Resize(fyne.NewSize(20, 0))
 
-	split := container.NewVSplit(container.NewBorder(container.NewVBox(header, seperator1), nil, nil, nil, container.NewMax(canvas.NewRectangle(color.Black), torrentlist1)), bottomInfo(myWindow))
+	split := container.NewVSplit(container.NewBorder(container.NewVBox(header, seperator1), nil, nil, nil, container.NewMax(canvas.NewRectangle(color.NRGBA{R: 19, G: 25, B: 41, A: 255}), container.NewVBox(torrentlist1, widget.NewSeparator(), torrentlist2, widget.NewSeparator(), torrentlist3, widget.NewSeparator(), torrentlist4))), bottomInfo(myWindow))
 
 	split.Offset = 1.0
 	myWindow.SetContent(split)
@@ -94,6 +97,267 @@ func main() { // rage in the darkness
 
 	myWindow.ShowAndRun()
 
+}
+
+func torrentList2(win fyne.Window) (fyne.CanvasObject, fyne.MenuItem) {
+
+	sty := &fyne.TextStyle{
+		Bold: true,
+	}
+
+	item := widget.NewAccordionItem("Assignment Outer Space", widget.NewLabel("The Episode"))
+	fileName := widget.NewAccordion(item)
+	size := widget.NewLabelWithStyle("1.07GB", fyne.TextAlignCenter, *sty)
+	proBar := widget.NewProgressBar()
+	seeders := widget.NewLabelWithStyle("2", fyne.TextAlignCenter, *sty)
+	leechers := widget.NewLabelWithStyle("9", fyne.TextAlignCenter, *sty)
+	downloadSpeed := widget.NewLabelWithStyle("0.0 MB/s", fyne.TextAlignCenter, *sty)
+	ETA := widget.NewLabelWithStyle("Completed ", fyne.TextAlignCenter, *sty)
+	dateOfAdd := widget.NewLabelWithStyle("5/28/2022", fyne.TextAlignCenter, *sty)
+
+	//ResizeAndMove(fileName, 0, 0, 298, 40)
+
+	ResizeAndMove(size, 295, 0, 62, 40)
+
+	ResizeAndMove(proBar, 380, 0, 120, 35)
+
+	ResizeAndMove(seeders, 511, 0, 80, 40)
+
+	ResizeAndMove(leechers, 592, 0, 80, 40)
+
+	ResizeAndMove(downloadSpeed, 672, 0, 160, 40)
+
+	ResizeAndMove(ETA, 832, 0, 80, 40)
+
+	ResizeAndMove(dateOfAdd, 912, 0, 80, 40)
+	proBar.SetValue(1)
+
+	item3 := fyne.NewMenuItem("Adjust Window", func() {
+		fmt.Println("Tap Size")
+		lenghtDif := (win.Canvas().Size().Width - 1000) / 8
+		fmt.Println("Tap CHange", lenghtDif)
+		ResizeAndMove(fileName, 0, 0, 298+lenghtDif, 40)
+
+		ResizeAndMove(size, 301+lenghtDif, 0, 62+lenghtDif, 40)
+
+		ResizeAndMove(proBar, 365+(2*lenghtDif), 0, 145+(lenghtDif), 40)
+
+		ResizeAndMove(seeders, 511+(3*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		ResizeAndMove(leechers, 592+(4*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		ResizeAndMove(downloadSpeed, 672+(5*lenghtDif), 0, 160+(lenghtDif), 40)
+
+		ResizeAndMove(ETA, 832+(6*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		ResizeAndMove(dateOfAdd, 912+(7*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		win.Canvas().Content().Refresh()
+		log.Println("Refresh:", win.Canvas().Size().Width)
+
+	})
+
+	list := widget.NewList(
+		// lets change item count from 3 to 30
+		func() int { return 1 }, // my list contain 3 items
+
+		func() fyne.CanvasObject {
+
+			//pro.Resize(fyne.NewSize(200, 50))
+
+			//item1 := widget.NewAccordionItem("Attack On Titan S04Ep28", widget.NewLabel("The Episode"))
+
+			//row := container.NewHBox(ac, canvas.NewRectangle(color.Black), size, pro, widget.NewLabel("11"), widget.NewLabel("18"), widget.NewLabel("5.4 MB/s"), widget.NewLabel("9 Min "), widget.NewLabel("6/2/2022"))
+			//	container.NewAdaptiveGrid()
+
+			row2 := container.NewWithoutLayout(fileName, size, proBar, seeders, leechers, downloadSpeed, ETA, dateOfAdd)
+
+			return row2
+
+		},
+		// last one
+		func(lii widget.ListItemID, co fyne.CanvasObject) {
+			// update data of widget
+			//co.(*widget.Label).SetText("Here is my Newtext")
+
+			//co.Resize(fyne.NewSize(150, 50))
+		},
+	)
+	return list, *item3
+}
+
+func torrentList3(win fyne.Window) (fyne.CanvasObject, fyne.MenuItem) {
+
+	sty := &fyne.TextStyle{
+		Bold: true,
+	}
+
+	item := widget.NewAccordionItem("The Arts of flowers", widget.NewLabel("The Episode"))
+	fileName := widget.NewAccordion(item)
+	size := widget.NewLabelWithStyle("0.58GB", fyne.TextAlignCenter, *sty)
+	proBar := widget.NewProgressBar()
+	seeders := widget.NewLabelWithStyle("12", fyne.TextAlignCenter, *sty)
+	leechers := widget.NewLabelWithStyle("25", fyne.TextAlignCenter, *sty)
+	downloadSpeed := widget.NewLabelWithStyle("0.0 MB/s", fyne.TextAlignCenter, *sty)
+	ETA := widget.NewLabelWithStyle("Completed ", fyne.TextAlignCenter, *sty)
+	dateOfAdd := widget.NewLabelWithStyle("5/25/2022", fyne.TextAlignCenter, *sty)
+
+	//ResizeAndMove(fileName, 0, 0, 298, 40)
+
+	ResizeAndMove(size, 295, 0, 62, 40)
+
+	ResizeAndMove(proBar, 380, 0, 120, 35)
+
+	ResizeAndMove(seeders, 511, 0, 80, 40)
+
+	ResizeAndMove(leechers, 592, 0, 80, 40)
+
+	ResizeAndMove(downloadSpeed, 672, 0, 160, 40)
+
+	ResizeAndMove(ETA, 832, 0, 80, 40)
+
+	ResizeAndMove(dateOfAdd, 912, 0, 80, 40)
+	proBar.SetValue(1)
+
+	item3 := fyne.NewMenuItem("Adjust Window", func() {
+		fmt.Println("Tap Size")
+		lenghtDif := (win.Canvas().Size().Width - 1000) / 8
+		fmt.Println("Tap CHange", lenghtDif)
+		ResizeAndMove(fileName, 0, 0, 298+lenghtDif, 40)
+
+		ResizeAndMove(size, 301+lenghtDif, 0, 62+lenghtDif, 40)
+
+		ResizeAndMove(proBar, 365+(2*lenghtDif), 0, 145+(lenghtDif), 40)
+
+		ResizeAndMove(seeders, 511+(3*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		ResizeAndMove(leechers, 592+(4*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		ResizeAndMove(downloadSpeed, 672+(5*lenghtDif), 0, 160+(lenghtDif), 40)
+
+		ResizeAndMove(ETA, 832+(6*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		ResizeAndMove(dateOfAdd, 912+(7*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		win.Canvas().Content().Refresh()
+		log.Println("Refresh:", win.Canvas().Size().Width)
+
+	})
+
+	list := widget.NewList(
+		// lets change item count from 3 to 30
+		func() int { return 1 }, // my list contain 3 items
+
+		func() fyne.CanvasObject {
+
+			//pro.Resize(fyne.NewSize(200, 50))
+
+			//item1 := widget.NewAccordionItem("Attack On Titan S04Ep28", widget.NewLabel("The Episode"))
+
+			//row := container.NewHBox(ac, canvas.NewRectangle(color.Black), size, pro, widget.NewLabel("11"), widget.NewLabel("18"), widget.NewLabel("5.4 MB/s"), widget.NewLabel("9 Min "), widget.NewLabel("6/2/2022"))
+			//	container.NewAdaptiveGrid()
+
+			row2 := container.NewWithoutLayout(fileName, size, proBar, seeders, leechers, downloadSpeed, ETA, dateOfAdd)
+
+			return row2
+
+		},
+		// last one
+		func(lii widget.ListItemID, co fyne.CanvasObject) {
+			// update data of widget
+			//co.(*widget.Label).SetText("Here is my Newtext")
+
+			//co.Resize(fyne.NewSize(150, 50))
+		},
+	)
+	return list, *item3
+}
+
+func torrentList4(win fyne.Window) (fyne.CanvasObject, fyne.MenuItem) {
+
+	sty := &fyne.TextStyle{
+		Bold: true,
+	}
+
+	item := widget.NewAccordionItem("Wild Oceans ", widget.NewLabel("The Episode"))
+	fileName := widget.NewAccordion(item)
+	size := widget.NewLabelWithStyle("1.71 GB", fyne.TextAlignCenter, *sty)
+	proBar := widget.NewProgressBar()
+	seeders := widget.NewLabelWithStyle("50", fyne.TextAlignCenter, *sty)
+	leechers := widget.NewLabelWithStyle("12", fyne.TextAlignCenter, *sty)
+	downloadSpeed := widget.NewLabelWithStyle("0.0 MB/s", fyne.TextAlignCenter, *sty)
+	ETA := widget.NewLabelWithStyle("Completed ", fyne.TextAlignCenter, *sty)
+	dateOfAdd := widget.NewLabelWithStyle("6/1/2022", fyne.TextAlignCenter, *sty)
+
+	//ResizeAndMove(fileName, 0, 0, 298, 40)
+
+	ResizeAndMove(size, 295, 0, 62, 40)
+
+	ResizeAndMove(proBar, 380, 0, 120, 35)
+
+	ResizeAndMove(seeders, 511, 0, 80, 40)
+
+	ResizeAndMove(leechers, 592, 0, 80, 40)
+
+	ResizeAndMove(downloadSpeed, 672, 0, 160, 40)
+
+	ResizeAndMove(ETA, 832, 0, 80, 40)
+
+	ResizeAndMove(dateOfAdd, 912, 0, 80, 40)
+	proBar.SetValue(1)
+
+	item3 := fyne.NewMenuItem("Adjust Window", func() {
+		fmt.Println("Tap Size")
+		lenghtDif := (win.Canvas().Size().Width - 1000) / 8
+		fmt.Println("Tap CHange", lenghtDif)
+		ResizeAndMove(fileName, 0, 0, 298+lenghtDif, 40)
+
+		ResizeAndMove(size, 301+lenghtDif, 0, 62+lenghtDif, 40)
+
+		ResizeAndMove(proBar, 365+(2*lenghtDif), 0, 145+(lenghtDif), 40)
+
+		ResizeAndMove(seeders, 511+(3*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		ResizeAndMove(leechers, 592+(4*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		ResizeAndMove(downloadSpeed, 672+(5*lenghtDif), 0, 160+(lenghtDif), 40)
+
+		ResizeAndMove(ETA, 832+(6*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		ResizeAndMove(dateOfAdd, 912+(7*lenghtDif), 0, 80+(lenghtDif), 40)
+
+		win.Canvas().Content().Refresh()
+		log.Println("Refresh:", win.Canvas().Size().Width)
+
+	})
+
+	list := widget.NewList(
+		// lets change item count from 3 to 30
+		func() int { return 1 }, // my list contain 3 items
+
+		func() fyne.CanvasObject {
+
+			//pro.Resize(fyne.NewSize(200, 50))
+
+			//item1 := widget.NewAccordionItem("Attack On Titan S04Ep28", widget.NewLabel("The Episode"))
+
+			//row := container.NewHBox(ac, canvas.NewRectangle(color.Black), size, pro, widget.NewLabel("11"), widget.NewLabel("18"), widget.NewLabel("5.4 MB/s"), widget.NewLabel("9 Min "), widget.NewLabel("6/2/2022"))
+			//	container.NewAdaptiveGrid()
+
+			row2 := container.NewWithoutLayout(fileName, size, proBar, seeders, leechers, downloadSpeed, ETA, dateOfAdd)
+
+			return row2
+
+		},
+		// last one
+		func(lii widget.ListItemID, co fyne.CanvasObject) {
+			// update data of widget
+			//co.(*widget.Label).SetText("Here is my Newtext")
+
+			//co.Resize(fyne.NewSize(150, 50))
+		},
+	)
+	return list, *item3
 }
 
 func bodyContainer(win fyne.Window) (fyne.CanvasObject, fyne.MenuItem) {
@@ -266,12 +530,12 @@ func torrentList(win fyne.Window) (fyne.CanvasObject, fyne.MenuItem) {
 		Bold: true,
 	}
 
-	item := widget.NewAccordionItem("Attack On Titan S04Ep28", widget.NewLabel("The Episode"))
+	item := widget.NewAccordionItem("Linux Mint 21 Cinnamon 64Bit ISO", widget.NewLabel("The Episode"))
 	fileName := widget.NewAccordion(item)
-	size := widget.NewLabelWithStyle("1.07GB", fyne.TextAlignCenter, *sty)
+	size := widget.NewLabelWithStyle("2.28GB", fyne.TextAlignCenter, *sty)
 	proBar := widget.NewProgressBar()
-	seeders := widget.NewLabelWithStyle("8", fyne.TextAlignCenter, *sty)
-	leechers := widget.NewLabelWithStyle("18", fyne.TextAlignCenter, *sty)
+	seeders := widget.NewLabelWithStyle("864", fyne.TextAlignCenter, *sty)
+	leechers := widget.NewLabelWithStyle("24", fyne.TextAlignCenter, *sty)
 	downloadSpeed := widget.NewLabelWithStyle("5.4 MB/s", fyne.TextAlignCenter, *sty)
 	ETA := widget.NewLabelWithStyle("9 Min ", fyne.TextAlignCenter, *sty)
 	dateOfAdd := widget.NewLabelWithStyle("6/2/2022", fyne.TextAlignCenter, *sty)
@@ -291,7 +555,7 @@ func torrentList(win fyne.Window) (fyne.CanvasObject, fyne.MenuItem) {
 	ResizeAndMove(ETA, 832, 0, 80, 40)
 
 	ResizeAndMove(dateOfAdd, 912, 0, 80, 40)
-	proBar.SetValue(.92)
+	proBar.SetValue(.77)
 
 	item3 := fyne.NewMenuItem("Adjust Window", func() {
 		fmt.Println("Tap Size")
@@ -320,7 +584,7 @@ func torrentList(win fyne.Window) (fyne.CanvasObject, fyne.MenuItem) {
 
 	list := widget.NewList(
 		// lets change item count from 3 to 30
-		func() int { return 30 }, // my list contain 3 items
+		func() int { return 1 }, // my list contain 3 items
 
 		func() fyne.CanvasObject {
 
@@ -360,7 +624,31 @@ func torrentList(win fyne.Window) (fyne.CanvasObject, fyne.MenuItem) {
 
 func bottomInfo(win fyne.Window) fyne.CanvasObject {
 
-	info := container.NewGridWithColumns(2, widget.NewLabel("Torrent File:"), widget.NewLabel("Hash:"), widget.NewLabel("Downloaded:"), widget.NewLabel("Number of Pieces left:"), widget.NewLabel("File List:"), widget.NewLabel("Saved PATH:"))
+	label1 := canvas.NewText("Linux Mint 21 Cinnamon 64Bit ISO", color.NRGBA{R: 50, G: 186, B: 219, A: 255})
+	label1.TextSize = 14
+	label1.TextStyle.Bold = true
+
+	hashInfo := canvas.NewText("14bb29461c2243aa287cda681488e57c9eeb25af", color.NRGBA{R: 50, G: 186, B: 219, A: 255})
+	hashInfo.TextSize = 14
+	hashInfo.TextStyle.Bold = true
+
+	downloaded := canvas.NewText("23863 downloads", color.NRGBA{R: 50, G: 186, B: 219, A: 255})
+	downloaded.TextSize = 14
+	downloaded.TextStyle.Bold = true
+
+	pieceOFleft := canvas.NewText("7466/9851", color.NRGBA{R: 50, G: 186, B: 219, A: 255})
+	pieceOFleft.TextSize = 14
+	pieceOFleft.TextStyle.Bold = true
+
+	fileList := canvas.NewText("Linux Mint 21 Cinnamon.exe", color.NRGBA{R: 50, G: 186, B: 219, A: 255})
+	fileList.TextSize = 14
+	fileList.TextStyle.Bold = true
+
+	savedPath := canvas.NewText("/Downloads", color.NRGBA{R: 50, G: 186, B: 219, A: 255})
+	savedPath.TextSize = 14
+	savedPath.TextStyle.Bold = true
+
+	info := container.NewGridWithColumns(2, container.NewHBox(widget.NewLabel("Torrent File:"), label1), container.NewHBox(widget.NewLabel("Hash:"), hashInfo), container.NewHBox(widget.NewLabel("Downloaded:"), downloaded), container.NewHBox(widget.NewLabel("Number of Pieces left:"), pieceOFleft), container.NewHBox(widget.NewLabel("File List:"), fileList), container.NewHBox(widget.NewLabel("Saved PATH:"), savedPath))
 	peerList := widget.NewList(func() int { return 5 }, func() fyne.CanvasObject { return widget.NewLabel("198.565.256.87 Country: Antartica") }, func(lii widget.ListItemID, co fyne.CanvasObject) {})
 	peerInfo := container.NewBorder(container.NewVBox(widget.NewLabel("Number of Connected Peers:"), widget.NewLabel("Peer List:")), nil, nil, nil, peerList)
 	trackerList := widget.NewList(func() int { return 10 }, func() fyne.CanvasObject { return widget.NewLabel("udp://open.stealth.si:80/announce  ") }, func(lii widget.ListItemID, co fyne.CanvasObject) {})
