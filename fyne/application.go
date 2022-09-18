@@ -28,7 +28,7 @@ func main() { // rage in the darkness
 
 	myApp := app.New()
 	myWindow := myApp.NewWindow("ReTorrent")
-	myWindow.Resize(fyne.NewSize(1000, 500))
+	myWindow.Resize(fyne.NewSize(1100, 560))
 	//	myWindow.SetFixedSize(true)
 
 	appIcon, _ := fyne.LoadResourceFromURLString("https://static.wikia.nocookie.net/leagueoflegends/images/4/4e/Avarosan_profileicon.png")
@@ -537,7 +537,7 @@ func torrentList(win fyne.Window) (fyne.CanvasObject, fyne.MenuItem) {
 	seeders := widget.NewLabelWithStyle("864", fyne.TextAlignCenter, *sty)
 	leechers := widget.NewLabelWithStyle("24", fyne.TextAlignCenter, *sty)
 	downloadSpeed := widget.NewLabelWithStyle("5.4 MB/s", fyne.TextAlignCenter, *sty)
-	ETA := widget.NewLabelWithStyle("9 Min ", fyne.TextAlignCenter, *sty)
+	ETA := widget.NewLabelWithStyle("2 Min ", fyne.TextAlignCenter, *sty)
 	dateOfAdd := widget.NewLabelWithStyle("6/2/2022", fyne.TextAlignCenter, *sty)
 
 	//ResizeAndMove(fileName, 0, 0, 298, 40)
@@ -555,7 +555,7 @@ func torrentList(win fyne.Window) (fyne.CanvasObject, fyne.MenuItem) {
 	ResizeAndMove(ETA, 832, 0, 80, 40)
 
 	ResizeAndMove(dateOfAdd, 912, 0, 80, 40)
-	proBar.SetValue(.77)
+	proBar.SetValue(.8)
 
 	item3 := fyne.NewMenuItem("Adjust Window", func() {
 		fmt.Println("Tap Size")
